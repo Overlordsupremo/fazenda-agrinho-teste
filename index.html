@@ -3,309 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fazendinha Agrinho - Ultimate Farming Edition</title>
+    <title>Fazenda Retrô Agrinho - Bio-Mutations</title>
     <style>
         * { box-sizing: border-box; user-select: none; image-rendering: pixelated; }
         body { margin: 0; padding: 0; background-color: #1a2e10; font-family: 'Courier New', Courier, monospace; overflow: hidden; color: #fff; }
         
+        /* UI Superior */
         #ui-top { position: absolute; top: 15px; left: 15px; background: #2c1e14; color: #f4ecd8; padding: 12px; border-radius: 2px; border: 4px solid #6b4c35; z-index: 100; min-width: 340px; box-shadow: 0 6px 0px #140d08; }
         #ui-top h2 { margin: 0 0 6px 0; color: #ffcc00; font-size: 14px; text-align: center; border-bottom: 3px double #4e3522; padding-bottom: 4px; text-transform: uppercase; text-shadow: 2px 2px #000; }
         #ui-top p { margin: 4px 0; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; text-shadow: 1px 1px #000; }
+        #shop-timer { color: #ff5555; font-size: 11px; font-weight: bold; margin-top: 6px; text-align: center; background: #140808; padding: 2px; border: 2px solid #4a1515; }
         
-        .bar-container { background: #000; border: 2px solid #444; padding: 2px; height: 18px; position: relative; margin-bottom: 4px; }
-        .xp-fill { height: 100%; width: 0%; background: linear-gradient(to bottom, #22ff22, #00aa00); transition: width 0.1s; }
-        .bar-text { position: absolute; width: 100%; text-align: center; top: 0px; left: 0; font-size: 10px; font-weight: bold; color: #fff; text-shadow: 1px 1px #000; }
+        .btn-mochila { width: 100%; margin-top: 6px; background: #4a5da3; color: white; border: 2px solid #232e5c; border-bottom-width: 4px; padding: 5px; font-weight: bold; cursor: pointer; font-size: 11px; text-transform: uppercase; text-shadow: 1px 1px #000; }
+        .btn-mochila:active { border-bottom-width: 2px; margin-top: 8px; margin-bottom: -2px; }
 
-        .btn-ui { width: 100%; margin-top: 4px; background: #4a5da3; color: white; border: 2px solid #232e5c; border-bottom-width: 4px; padding: 4px; font-weight: bold; cursor: pointer; font-size: 11px; text-transform: uppercase; }
-        .btn-ui:active { border-bottom-width: 2px; margin-top: 6px; margin-bottom: -2px; }
+        /* PAINEL DE ADM */
+        #adm-trigger { position: absolute; top: 15px; right: 15px; background: #990000; color: #fff; border: 3px solid #ff3333; padding: 8px 12px; font-weight: bold; font-size: 12px; cursor: pointer; z-index: 200; box-shadow: 0 4px 0 #440000; text-transform: uppercase; }
+        #adm-panel { display: none; position: absolute; top: 60px; right: 15px; background: #111116; border: 4px solid #ff3333; padding: 12px; z-index: 200; width: 320px; color: #00ff00; box-shadow: 0 6px 12px rgba(0,0,0,0.8); max-height: 85vh; overflow-y: auto; }
+        #adm-panel h3 { margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #ff3333; text-transform: uppercase; border-bottom: 2px solid #ff3333; padding-bottom: 4px; }
+        .adm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 11px; gap: 4px; }
+        .adm-row label { width: 40%; color: #aaa; }
+        .adm-input { width: 60%; background: #222; border: 1px solid #ff3333; color: #00ff00; padding: 3px; font-family: inherit; font-size: 11px; }
+        .adm-btn-block { width: 100%; background: #ff3333; color: black; border: none; padding: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-family: inherit; font-size: 11px; margin-top: 5px; margin-bottom: 5px; }
+        .adm-btn-block:hover { background: #ff6666; }
+        .adm-btn-small { background: #222; color: #00ff00; border: 1px solid #00ff00; padding: 2px 6px; cursor: pointer; font-size: 10px; }
 
-        #adm-trigger { position: absolute; top: 15px; right: 15px; background: #006600; color: #fff; border: 3px solid #33ff33; padding: 8px 12px; font-weight: bold; font-size: 12px; cursor: pointer; z-index: 200; text-transform: uppercase; }
-        #adm-panel { display: none; position: absolute; top: 60px; right: 15px; background: #111611; border: 4px solid #33ff33; padding: 12px; z-index: 200; width: 320px; color: #00ff00; max-height: 80vh; overflow-y: auto; }
-        .adm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-size: 11px; }
-        .adm-input { width: 50%; background: #222; border: 1px solid #33ff33; color: #00ff00; padding: 2px; font-family: inherit; }
-
-        #hotbar-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; background: #18120c; padding: 6px; border: 4px solid #4a3319; z-index: 100; }
-        .hotbar-slot { width: 54px; height: 54px; background: #362517; border: 3px solid #22160e; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
-        .hotbar-slot.selected { border-color: #ffaa00; background: #4e3522; }
+        /* Hotbar Rápida */
+        #hotbar-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; background: #18120c; padding: 6px; border: 4px solid #4a3319; z-index: 100; box-shadow: 0 6px 0 #000; }
+        .hotbar-slot { width: 52px; height: 52px; background: #362517; border: 3px solid #22160e; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+        .hotbar-slot.selected { border-color: #ffaa00; background: #4e3522; transform: scale(1.05); }
         .hotbar-slot .slot-num { position: absolute; top: 1px; left: 2px; font-size: 9px; color: #8c735b; }
-        .hotbar-slot .slot-icon { font-size: 20px; }
-        .hotbar-slot .slot-qty { position: absolute; bottom: 1px; right: 2px; font-size: 10px; color: #ffcc00; font-weight: bold; }
+        .hotbar-slot .slot-icon { font-size: 20px; margin-top: 2px; }
+        .hotbar-slot .slot-qty { position: absolute; bottom: 1px; right: 2px; font-size: 10px; color: #ffcc00; font-weight: bold; text-shadow: 1px 1px #000; }
+        .hotbar-slot .slot-lvl { position: absolute; top: 1px; right: 2px; font-size: 9px; color: #5cc8ff; font-weight: bold; text-shadow: 1px 1px #000; }
 
+        /* Cenários e Canvases */
         #game-canvas { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; background: #4d7a34; background-image: radial-gradient(#56873b 20%, transparent 20%); background-size: 16px 16px; z-index: 1; }
-        #player { position: absolute; width: 42px; height: 52px; background: #ffdf7f; border: 3px solid #111; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 50; }
+        #player { position: absolute; width: 42px; height: 52px; background: linear-gradient(to bottom, #7fa4ff 20%, #ffcc55 20%, #ffcc55 50%, #444 50%, #333 80%); border: 3px solid #111; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 50; box-shadow: 0 6px 0 rgba(0,0,0,0.2); }
 
-        .character { position: absolute; width: 50px; height: 50px; font-size: 24px; z-index: 10; border: 3px solid #1a110b; display: flex; align-items: center; justify-content: center; }
+        .character { position: absolute; width: 50px; height: 50px; font-size: 24px; z-index: 10; border: 3px solid #1a110b; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #000; }
         .npc-label { position: absolute; top: -24px; background: #1c120c; color: #f4ecd8; padding: 2px 5px; border: 2px solid #573b24; font-size: 9px; font-weight: bold; white-space: nowrap; }
         
-        #farm-zones { position: absolute; top: 220px; left: 340px; display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100vw - 380px); z-index: 5; max-height: 65vh; overflow-y: auto; padding: 10px; }
-        .plot { width: 68px; height: 68px; background: #422a18; border: 4px solid #26170c; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        #farm-zones { position: absolute; top: 160px; left: 340px; display: flex; flex-wrap: wrap; gap: 8px; max-width: calc(100vw - 380px); z-index: 5; }
+        .plot { width: 72px; height: 72px; background: #422a18; border: 4px solid #26170c; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: inset 0 4px 6px #000; }
         
-        .crop { font-size: 28px; display: flex; flex-direction: column; align-items: center; }
-        .crop.growing { filter: grayscale(80%) brightness(40%) scale(0.6); }
+        /* Sistema de Mutações Visuais */
+        .crop { font-size: 30px; display: flex; flex-direction: column; align-items: center; transition: all 0.3s ease; }
+        .crop.growing { filter: grayscale(80%) brightness(40%) scale(0.6) !important; animation: none !important; }
         
-        .m-golden { filter: drop-shadow(0px 0px 4px #ffd700) brightness(1.2); }
-        .m-frozen { filter: drop-shadow(0px 0px 4px #70c5ff) hue-rotate(140deg); }
-        .m-divine { filter: drop-shadow(0px 0px 6px #ff00ff) brightness(1.3); }
-        .m-radioactive { filter: drop-shadow(0px 0px 5px #39ff14) saturate(2); }
-        .m-infernal { filter: drop-shadow(0px 0px 5px #ff3300) contrast(1.3); }
-        
-        .timer-bar { position: absolute; bottom: 2px; left: 2px; width: calc(100% - 4px); height: 4px; background: #111; }
+        .crop.golden { filter: drop-shadow(0px 0px 6px #ffd700) brightness(1.3); animation: goldPulse 1.5s infinite alternate ease-in-out; }
+        @keyframes goldPulse { 0% { transform: scale(1); } 100% { transform: scale(1.15) rotate(5deg); } }
+
+        .crop.frozen { filter: drop-shadow(0px 0px 8px #70c5ff) hue-rotate(140deg); animation: freezeShudder 1.8s infinite linear; }
+        @keyframes freezeShudder { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(2px); } }
+
+        .crop.divine { filter: drop-shadow(0px 0px 12px #ff00ff) brightness(1.4); animation: divineFloat 1.2s infinite alternate ease-in-out; }
+        @keyframes divineFloat { 0% { transform: translateY(0px); } 100% { transform: translateY(-6px); } }
+
+        .crop.radioactive { filter: drop-shadow(0px 0px 10px #39ff14) saturate(3); animation: radTremble 0.3s infinite linear; }
+        @keyframes radTremble { 0% { transform: translate(1px, 1px); } 100% { transform: translate(-1px, -1px); } }
+
+        .crop.infernal { filter: drop-shadow(0px 0px 12px #ff3300) contrast(1.5); animation: flamePulse 0.8s infinite alternate ease; }
+        @keyframes flamePulse { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+
+        .timer-bar { position: absolute; bottom: 4px; left: 4px; width: calc(100% - 8px); height: 5px; background: #111; }
         .timer-fill { height: 100%; width: 0%; background: #38b349; }
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #291c12; border: 4px solid #543a24; padding: 16px; z-index: 200; width: 90%; max-width: 540px; color: #f4ecd8; box-shadow: 0 8px 0 #000; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #402b1b; padding-bottom: 4px; margin-bottom: 8px; }
-        .close-btn { background: #912323; color: white; border: 2px solid #4a1212; padding: 2px 6px; cursor: pointer; font-family: inherit; }
+        /* Modais */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #291c12; border: 4px solid #543a24; padding: 18px; z-index: 200; width: 92%; max-width: 560px; box-shadow: 0 10px 0px #000; color: #f4ecd8; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #402b1b; padding-bottom: 6px; margin-bottom: 10px; }
+        .modal-header h3 { margin: 0; color: #ffcc00; font-size: 13px; text-transform: uppercase; }
+        .close-btn { background: #912323; color: white; border: 2px solid #4a1212; padding: 3px 8px; cursor: pointer; font-family: inherit; font-weight: bold; }
         
-        .shop-grid { display: grid; grid-template-columns: 1fr; gap: 4px; max-height: 50vh; overflow-y: auto; }
-        .shop-item { display: flex; align-items: center; justify-content: space-between; padding: 6px; border: 2px solid #3d281a; background: #21160e; font-size: 11px; }
-        .buy-btn { background: #2b5c16; color: white; border: 2px solid #142e09; padding: 3px 6px; cursor: pointer; font-family: inherit; font-weight: bold; }
-        .buy-btn:disabled { background: #444; border-color: #222; cursor: not-allowed; }
+        .shop-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 5px; background: #3d281a; border: 2px solid #1a100a; color: #bfaea0; cursor: pointer; font-size: 11px; font-family: inherit; text-transform: uppercase; }
+        .tab-btn.active { background: #735135; color: #fff; border-color: #ffaa00; }
+
+        .shop-grid { display: grid; grid-template-columns: 1fr; gap: 5px; }
+        .shop-item { display: flex; align-items: center; justify-content: space-between; padding: 8px; border: 2px solid #3d281a; background: #21160e; }
+        .item-info { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+        .buy-btn { background: #2b5c16; color: white; border: 2px solid #142e09; border-bottom-width: 3px; padding: 4px 8px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; }
+        .buy-btn:disabled { background: #3a3a3a; border-color: #111; color: #666; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div id="ui-top">
-        <h2>🌾 Fazenda Ricas Mutações - Agrinho</h2>
-        <div class="bar-container">
-            <div id="xp-bar" class="xp-fill"></div>
-            <div id="xp-text" class="bar-text">XP Agrícola: 0 / 100 (Nível 1)</div>
-        </div>
-        <p><span>🪙 Moedas do Campo:</span> <span id="coin-count">150</span></p>
-        <p><span>🌱 Item Equipado:</span> <span id="selected-seed-text">Mão Vazia</span></p>
+        <h2>Fazenda Retrô Agrinho</h2>
+        <p><span>🪙 Moedas:</span> <span id="coin-count">150</span></p>
+        <p><span>🌱 Item Ativo:</span> <span id="selected-seed-text">Mão Vazia</span></p>
         <p><span style="color:#bf8eff;">🔮 Bênção Ativa:</span> <span id="bless-status">Nenhuma</span></p>
-        <button class="btn-ui" onclick="openBackpackModal()">🎒 Ver Bolsa & Mutadores [Espaço]</button>
-        <button class="btn-ui" id="btn-buy-plot" onclick="buyNewPlot()" style="background:#c27f38; border-color:#6e4215;">🟫 Expandir Lotes de Terra (<span id="plot-cost">200</span> 🪙)</button>
+        <button class="btn-mochila" onclick="openBackpackModal()">🎒 Ver Mochila [Espaço]</button>
+        <div id="shop-timer">Loja reestoca em: 03:00</div>
     </div>
 
-    <button id="adm-trigger" onclick="tryAccessAdm()">🛠️ Painel Bio-Hack</button>
+    <button id="adm-trigger" onclick="toggleAdmPanel()">🛠️ Painel ADM</button>
     <div id="adm-panel">
-        <h3>Modificação de Ecossistema</h3>
-        <button class="buy-btn" style="width:100%; background:#00ff00; color:#000; margin-bottom:8px;" onclick="aplicarAlteracoesADM()">⚡ Aplicar Bio-Hacks</button>
-        <div class="adm-row"><label>🪙 Moedas:</label><input type="number" id="adm-coins" class="adm-input" value="150"></div>
-        <div class="adm-row"><label>⭐ Nível Fazendeiro:</label><input type="number" id="adm-lvl" class="adm-input" value="1"></div>
-        <div class="adm-row"><label>🟫 Total Lotes (Max 40):</label><input type="number" id="adm-plots" class="adm-input" value="3"></div>
+        <h3>Menu Deus Campo v3.0</h3>
+        <button class="adm-btn-block" style="background:#00ff00; color:#000;" onclick="aplicarAlteracoesADM()">⚡ Aplicar Modificações</button>
+        <div class="adm-row">
+            <label>🪙 Moedas:</label>
+            <input type="number" id="adm-coins" class="adm-input" value="150">
+        </div>
+        <div class="adm-row">
+            <label>🟫 Qtd Lotes (Max 24):</label>
+            <input type="number" id="adm-plots" class="adm-input" value="6">
+        </div>
     </div>
 
     <div id="hotbar-container">
-        <div class="hotbar-slot selected" id="slot-0" onclick="selectSlot(0)"><span class="slot-num">1</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
-        <div class="hotbar-slot" id="slot-1" onclick="selectSlot(1)"><span class="slot-num">2</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
-        <div class="hotbar-slot" id="slot-2" onclick="selectSlot(2)"><span class="slot-num">3</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
-        <div class="hotbar-slot" id="slot-3" onclick="selectSlot(3)"><span class="slot-num">4</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
-        <div class="hotbar-slot" id="slot-4" onclick="selectSlot(4)"><span class="slot-num">5</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
-        <div class="hotbar-slot" id="slot-5" onclick="selectSlot(5)"><span class="slot-num">6</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
-        <div class="hotbar-slot" id="slot-6" onclick="selectSlot(6)"><span class="slot-num">7</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
-        <div class="hotbar-slot" id="slot-7" onclick="selectSlot(7)"><span class="slot-num">8</span><span class="slot-icon"></span><span class="slot-qty"></span></div>
+        <div class="hotbar-slot selected" id="slot-0" onclick="selectSlot(0)"><span class="slot-num">1</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
+        <div class="hotbar-slot" id="slot-1" onclick="selectSlot(1)"><span class="slot-num">2</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
+        <div class="hotbar-slot" id="slot-2" onclick="selectSlot(2)"><span class="slot-num">3</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
+        <div class="hotbar-slot" id="slot-3" onclick="selectSlot(3)"><span class="slot-num">4</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
+        <div class="hotbar-slot" id="slot-4" onclick="selectSlot(4)"><span class="slot-num">5</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
+        <div class="hotbar-slot" id="slot-5" onclick="selectSlot(5)"><span class="slot-num">6</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
+        <div class="hotbar-slot" id="slot-6" onclick="selectSlot(6)"><span class="slot-num">7</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
+        <div class="hotbar-slot" id="slot-7" onclick="selectSlot(7)"><span class="slot-num">8</span><span class="slot-icon"></span><span class="slot-qty"></span><span class="slot-lvl"></span></div>
     </div>
 
     <div id="game-canvas">
         <div id="player" style="top: 250px; left: 200px;">🧑‍🌾</div>
-        <div id="npc-tiao" class="character" style="top: 25px; left: 360px; background: #2f4560;">🏪<span class="npc-label">Tião (Sementes) [E]</span></div>
-        <div id="npc-mago" class="character" style="top: 25px; left: 540px; background: #50287a;">🧙‍♂️<span class="npc-label">Mago Alquimista [E]</span></div>
-        <div id="npc-chico" class="character" style="top: 25px; left: 720px; background: #7a431d;">👨‍💼<span class="npc-label">Chico Exportador [E]</span></div>
+        <div id="npc-tiao" class="character" style="top: 25px; left: 360px; background: #2f4560;">🏪<span class="npc-label">Tião [E]</span></div>
+        <div id="npc-mago" class="character" style="top: 25px; left: 540px; background: #50287a;">🧙‍♂️<span class="npc-label">Mago [E]</span></div>
+        <div id="npc-chico" class="character" style="top: 25px; left: 720px; background: #7a431d;">👨‍💼<span class="npc-label">Chico [E]</span></div>
         <div id="farm-zones"></div>
     </div>
 
     <div id="game-modal" class="modal">
-        <div class="modal-header"><h3 id="modal-title">Painel</h3><button class="close-btn" onclick="closeModal()">X</button></div>
+        <div class="modal-header">
+            <h3 id="modal-title">Painel</h3>
+            <button class="close-btn" onclick="closeModal()">X</button>
+        </div>
         <div id="modal-content" class="shop-grid"></div>
     </div>
 
     <script>
-        let player = { x: 200, y: 250, speed: 5, lvl: 1, xp: 0, nextXp: 100 };
-        let gameState = { coins: 150, maxPlots: 3, activeHotbarSlot: 0, admUnlocked: false, fertilizanteAtivo: false, mutationBless: false };
-        
-        let hotbar = Array(8).fill(null).map(() => ({ id: null, qty: 0, type: '', data: null }));
-        let plots = [];
+        let player = { x: 200, y: 250, speed: 6 };
+        let gameState = { coins: 150, maxPlots: 6, activeHotbarSlot: 0, mutationBless: false };
         let keysPressed = {};
-        
-        // Mecânica de Estoque Limitado e Tempo de Reabastecimento (3 minutos = 180 segundos)
-        let shopRestockTimer = 180;
-        let seedStock = { maca: 5, banana: 5, cenoura: 5, laranja: 5, melancia: 5, uva: 5 };
-
-        const fruitData = {
-            maca: { name: "Maçã", icon: "🍎", basePrice: 15, time: 4, weightMin: 0.3 },
-            banana: { name: "Banana", icon: "🍌", basePrice: 20, time: 6, weightMin: 0.2 },
-            cenoura: { name: "Cenoura", icon: "🥕", basePrice: 22, time: 5, weightMin: 0.15 },
-            laranja: { name: "Laranja", icon: "🍊", basePrice: 25, time: 8, weightMin: 0.4 },
-            melancia: { name: "Melancia", icon: "🍉", basePrice: 80, time: 18, weightMin: 3.5 },
-            uva: { name: "Uva Cósmica", icon: "🍇", basePrice: 115, time: 24, weightMin: 0.2 }
-        };
-
-        const mutationConfig = {
-            golden: { label: "Dourada ✨", mult: 3.0, class: "m-golden" },
-            frozen: { label: "Congelada ❄️", mult: 2.2, class: "m-frozen" },
-            divine: { label: "Divina 🌌", mult: 6.0, class: "m-divine" },
-            radioactive: { label: "Radioativa ☢️", mult: 4.5, class: "m-radioactive" },
-            infernal: { label: "Infernal 🔥", mult: 7.0, class: "m-infernal" }
-        };
-
-        // Identificador de qual menu NPC está aberto no momento para atualizar em tempo real
+        let shopTimer = 180;
+        let plots = [];
         let currentOpenNPC = null;
 
+        // Tabelas de unidades métricas loucas para o peso
+        const unidadesAleatorias = ["kg", "g", "mg", "lb", "oz", " toneladas cósmicas", "g quânticas", "g bio-alteradas"];
+
+        // CONFIGURAÇÃO REESTRUTURADA: Preços muito maiores e Estoques invertidos (Mais caro = menos sementes)
+        const fruitData = {
+            maca:    { name: "Maçã", icon: "🍎", seedPrice: 35,  basePrice: 65,  time: 4,  maxStock: 12 },
+            banana:  { name: "Banana", icon: "🍌", seedPrice: 60,  basePrice: 110, time: 6,  maxStock: 9 },
+            cenoura: { name: "Cenoura", icon: "🥕", seedPrice: 90,  basePrice: 175, time: 5,  maxStock: 7 },
+            laranja: { name: "Laranja", icon: "🍊", seedPrice: 140, basePrice: 290, time: 8,  maxStock: 5 },
+            tomate:  { name: "Tomate", icon: "🍅", seedPrice: 220, basePrice: 480, time: 10, maxStock: 4 },
+            melancia:{ name: "Melancia", icon: "🍉", seedPrice: 400, basePrice: 950, time: 16, maxStock: 3 },
+            estrela: { name: "Fruta Estrela", icon: "⭐", seedPrice: 850, basePrice: 2100, time: 25, maxStock: 2 },
+            divina:  { name: "Divindade Mítica", icon: "🌌", seedPrice: 1800, basePrice: 5000, time: 40, maxStock: 1 }
+        };
+
+        // Estoque atual em tempo real da loja do Tião
+        let seedStock = {};
+
+        const mutationConfig = {
+            golden: { label: "Dourada ✨", mult: 3.0, class: "golden" },
+            frozen: { label: "Congelada ❄️", mult: 2.2, class: "frozen" },
+            divine: { label: "Divina 🌌", mult: 6.0, class: "divine" },
+            radioactive: { label: "Radioativa ☢️", mult: 4.5, class: "radioactive" },
+            infernal: { label: "Infernal 🔥", mult: 7.0, class: "infernal" }
+        };
+
+        let hotbar = Array(8).fill(null).map(() => ({ id: null, qty: 0, type: '', data: null }));
+
         function init() {
+            restockShop();
             createPlots();
             updateUI();
             updateHotbarVisuals();
 
-            // Intervalo de ciclo das plantas (0.1s)
+            // Contador de Reabastecimento (A cada 3 minutos)
+            setInterval(() => {
+                if (shopTimer > 0) {
+                    shopTimer--;
+                } else {
+                    shopTimer = 180;
+                    restockShop();
+                    if (currentOpenNPC === 'tiao') openNPCModal('tiao');
+                }
+                let mins = Math.floor(shopTimer / 60), secs = shopTimer % 60;
+                let tEl = document.getElementById('shop-timer');
+                if (tEl) tEl.innerText = `Loja reestoca em: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+
+            // Mecânica do crescimento das plantas
             setInterval(() => {
                 plots.forEach(plot => {
                     if (plot.status === 'growing') {
-                        plot.timer -= gameState.fertilizanteAtivo ? 0.2 : 0.1;
+                        plot.timer -= 0.1;
                         let totalTime = fruitData[plot.fruit].time;
                         let progress = Math.min(((totalTime - plot.timer) / totalTime) * 100, 100);
                         let fillBar = plot.element.querySelector('.timer-fill');
                         if (fillBar) fillBar.style.width = `${progress}%`;
-                        if (plot.timer <= 0) { plot.status = 'ready'; renderPlotAsset(plot); }
+
+                        if (plot.timer <= 0) {
+                            plot.status = 'ready';
+                            renderPlotAsset(plot);
+                        }
                     }
                 });
             }, 100);
 
-            // Contador Regressivo de Reabastecimento (1s)
-            setInterval(() => {
-                if (shopRestockTimer > 0) {
-                    shopRestockTimer--;
-                } else {
-                    shopRestockTimer = 180;
-                    Object.keys(seedStock).forEach(key => seedStock[key] = 5); // Restoca para 5 sementes
-                    if (currentOpenNPC === 'tiao') openNPCModal('tiao'); // Atualiza a tela se o jogador estiver olhando o menu
-                }
-                // Se a janela do Tião estiver aberta, atualiza o timer dinamicamente na tela
-                if (currentOpenNPC === 'tiao') {
-                    let timerEl = document.getElementById('restock-countdown');
-                    if (timerEl) timerEl.innerText = formatTime(shopRestockTimer);
-                }
-            }, 1000);
-
             window.addEventListener('keydown', e => {
-                keysPressed[e.key.toLowerCase()] = true;
                 if (document.activeElement.tagName === 'INPUT') return;
                 if (e.code === 'Space') { e.preventDefault(); openBackpackModal(); }
                 if (['1','2','3','4','5','6','7','8'].includes(e.key)) selectSlot(parseInt(e.key) - 1);
                 if (e.key.toLowerCase() === 'e') handleNPCDetection();
             });
 
-            window.addEventListener('keyup', e => { delete keysPressed[e.key.toLowerCase()]; });
-
             gameLoop();
         }
 
-        function formatTime(seconds) {
-            let min = Math.floor(seconds / 60);
-            let seg = seconds % 60;
-            return `${min}:${seg < 10 ? '0' : ''}${seg}`;
+        function restockShop() {
+            Object.keys(fruitData).forEach(key => {
+                seedStock[key] = fruitData[key].maxStock;
+            });
         }
 
-        // ... [Código administrativo mantido] ...
-        function tryAccessAdm() {
-            if (gameState.admUnlocked) {
-                let panel = document.getElementById('adm-panel');
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-            } else {
-                if (prompt("Digite o código de acesso de laboratório:") === "agrinho2026") {
-                    gameState.admUnlocked = true;
-                    document.getElementById('adm-panel').style.display = 'block';
-                } else { alert("Acesso negado!"); }
-            }
+        function toggleAdmPanel() {
+            let panel = document.getElementById('adm-panel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+            document.getElementById('adm-coins').value = Math.floor(gameState.coins);
+            document.getElementById('adm-plots').value = gameState.maxPlots;
         }
 
         function aplicarAlteracoesADM() {
-            gameState.coins = parseInt(document.getElementById('adm-coins').value) || 0;
-            player.lvl = parseInt(document.getElementById('adm-lvl').value) || 1;
-            gameState.maxPlots = Math.min(parseInt(document.getElementById('adm-plots').value) || 3, 40);
-            createPlots(); updateUI();
-        }
-
-        function buyNewPlot() {
-            if (gameState.maxPlots >= 40) return alert("Capacidade de lotes máxima atingida!");
-            let cost = 200 + (gameState.maxPlots * 180);
-            if (gameState.coins >= cost) {
-                gameState.coins -= cost; gameState.maxPlots++; createPlots(); updateUI();
-            } else alert("Moedas insuficientes!");
+            gameState.coins = parseFloat(document.getElementById('adm-coins').value) || 0;
+            let targetPlots = Math.min(parseInt(document.getElementById('adm-plots').value) || 6, 24);
+            if(targetPlots !== gameState.maxPlots) {
+                gameState.maxPlots = targetPlots;
+                createPlots();
+            }
+            updateUI();
+            alert("Modificações aplicadas com sucesso!");
         }
 
         function createPlots() {
-            const container = document.getElementById('farm-zones'); container.innerHTML = '';
-            let oldPlots = [...plots]; plots = [];
+            const container = document.getElementById('farm-zones');
+            container.innerHTML = '';
+            let oldPlots = [...plots];
+            plots = [];
+
             for(let i = 0; i < gameState.maxPlots; i++) {
-                let plotDiv = document.createElement('div'); plotDiv.className = 'plot'; container.appendChild(plotDiv);
-                if (oldPlots[i]) { plots.push(oldPlots[i]); plots[i].element = plotDiv; if (plots[i].status !== 'empty') renderPlotAsset(plots[i]); }
-                else { plots.push({ element: plotDiv, status: 'empty', fruit: null, timer: 0, mutations: [], weight: 1.0 }); plotDiv.innerHTML = `<span style="color:#26170c; font-size:8px; position:absolute; bottom:2px;">Terra</span>`; }
+                let plotDiv = document.createElement('div');
+                plotDiv.className = 'plot';
+                plotDiv.innerHTML = `<span style="color:#26170c; font-size:8px; position:absolute; bottom:4px; font-weight:bold;">Terra</span>`;
+                container.appendChild(plotDiv);
+
+                if (oldPlots[i]) {
+                    plots.push(oldPlots[i]); plots[i].element = plotDiv;
+                    if (plots[i].status !== 'empty') renderPlotAsset(plots[i]);
+                } else {
+                    plots.push({ element: plotDiv, status: 'empty', fruit: null, timer: 0, mutation: null, weight: 0, unit: '' });
+                }
             }
             plots.forEach((p, idx) => p.element.onclick = () => handlePlotInteraction(idx));
-            document.getElementById('plot-cost').innerText = 200 + (gameState.maxPlots * 180);
         }
 
         function renderPlotAsset(plot) {
-            let data = fruitData[plot.fruit]; plot.element.innerHTML = '';
-            let cropDiv = document.createElement('div'); cropDiv.className = `crop ${plot.status === 'growing' ? 'growing' : ''}`; cropDiv.innerText = data.icon;
-            if (plot.status === 'ready') { plot.mutations.forEach(m => cropDiv.classList.add(mutationConfig[m].class)); }
+            let data = fruitData[plot.fruit];
+            plot.element.innerHTML = '';
+            
+            let cropDiv = document.createElement('div');
+            cropDiv.className = `crop ${plot.status === 'growing' ? 'growing' : ''}`;
+            if (plot.status === 'ready' && plot.mutation) {
+                cropDiv.classList.add(mutationConfig[plot.mutation].class);
+            }
+            cropDiv.innerText = data.icon;
             plot.element.appendChild(cropDiv);
+            
             if (plot.status === 'growing') {
-                let tb = document.createElement('div'); tb.className = 'timer-bar'; tb.innerHTML = `<div class="timer-fill"></div>`; plot.element.appendChild(tb);
+                let timerBar = document.createElement('div');
+                timerBar.className = 'timer-bar';
+                timerBar.innerHTML = `<div class="timer-fill"></div>`;
+                plot.element.appendChild(timerBar);
             }
         }
 
         function handlePlotInteraction(index) {
-            let plot = plots[index]; let activeItem = hotbar[gameState.activeHotbarSlot];
+            let plot = plots[index];
+            let activeItem = hotbar[gameState.activeHotbarSlot];
 
             if (plot.status === 'empty' && activeItem && activeItem.type === 'semente' && activeItem.qty > 0) {
-                plot.status = 'growing'; plot.fruit = activeItem.id;
+                plot.status = 'growing';
+                plot.fruit = activeItem.id;
                 plot.timer = fruitData[plot.fruit].time;
-                plot.mutations = [];
+                plot.mutation = null;
 
-                // Sistema adaptado para incluir os 40% de bônus do altar do mago
-                let rand = Math.random();
-                let chanceMutar = gameState.mutationBless ? 0.65 : 0.25; // Se tiver a bênção, a chance total sobe drasticamente
-
-                if (rand < chanceMutar) {
-                    let mutRand = Math.random();
-                    if (mutRand < 0.10) plot.mutations.push('infernal');
-                    else if (mutRand < 0.25) plot.mutations.push('divine');
-                    else if (mutRand < 0.45) plot.mutations.push('radioactive');
-                    else if (mutRand < 0.70) plot.mutations.push('golden');
-                    else plot.mutations.push('frozen');
-                    
-                    // Consome a carga da bênção do mago após mutar com sucesso
-                    if (gameState.mutationBless) {
-                        gameState.mutationBless = false;
-                        updateUI();
-                    }
+                // 40% de chance extra se comprou a benção do mago, caso contrário 20% natural
+                let chance = gameState.mutationBless ? 0.60 : 0.20;
+                if (Math.random() < chance) {
+                    let muts = Object.keys(mutationConfig);
+                    plot.mutation = muts[Math.floor(Math.random() * muts.length)];
+                    gameState.mutationBless = false; // consome o altar
                 }
 
-                plot.weight = parseFloat((Math.random() * 1.5 + fruitData[plot.fruit].weightMin).toFixed(2));
-                
+                // Gera o peso e escolhe a unidade aleatória solicitada!
+                plot.weight = (Math.random() * 2 + fruitData[plot.fruit].weightMin).toFixed(2);
+                plot.unit = unidadesAleatorias[Math.floor(Math.random() * unidadesAleatorias.length)];
+
                 activeItem.qty--;
                 if (activeItem.qty <= 0) hotbar[gameState.activeHotbarSlot] = { id: null, qty: 0, type: '', data: null };
+                
                 renderPlotAsset(plot); updateUI(); updateHotbarVisuals();
             } 
             else if (plot.status === 'ready') {
-                let finalMult = 1.0;
-                plot.mutations.forEach(m => { finalMult *= mutationConfig[m].mult; });
+                let mult = plot.mutation ? mutationConfig[plot.mutation].mult : 1.0;
+                let precoFinal = fruitData[plot.fruit].basePrice * mult * parseFloat(plot.weight);
+                let labelCompleta = `${fruitData[plot.fruit].name} ${plot.mutation ? '['+mutationConfig[plot.mutation].label+']' : ''} (${plot.weight}${plot.unit})`;
 
-                let calculatedPrice = fruitData[plot.fruit].basePrice * finalMult * plot.weight;
-                let finalName = `${fruitData[plot.fruit].name} ${plot.mutations.length > 0 ? '['+mutationConfig[plot.mutations[0]].label+']' : ''} (${plot.weight}kg)`;
+                addItemToHotbar(plot.fruit, 'fruta', { icon: fruitData[plot.fruit].icon, price: precoFinal, fullName: labelCompleta });
 
-                addItemToHotbar(plot.fruit, 'fruta', { icon: fruitData[plot.fruit].icon, price: calculatedPrice, fullName: finalName });
-
-                player.xp += Math.floor(20 * finalMult);
-                if (player.xp >= player.nextXp) {
-                    player.xp -= player.nextXp; player.lvl++; player.nextXp = Math.floor(player.nextXp * 1.4);
-                }
-
-                plot.status = 'empty'; plot.fruit = null; plot.element.innerHTML = `<span style="color:#26170c; font-size:8px; position:absolute; bottom:2px;">Terra</span>`;
+                plot.status = 'empty';
+                plot.fruit = null;
+                plot.element.innerHTML = `<span style="color:#26170c; font-size:8px; position:absolute; bottom:4px; font-weight:bold;">Terra</span>`;
                 updateUI();
             }
         }
 
         function addItemToHotbar(id, type, dataBlock) {
-            let slot = null;
-            if (type === 'semente') {
-                slot = hotbar.find(s => s.id === id && s.type === 'semente');
-            }
-            if (!slot) {
-                slot = hotbar.find(s => s.id === null);
-            }
+            let slot = hotbar.find(s => s.id === id && s.type === type);
+            if (!slot) slot = hotbar.find(s => s.id === null);
             if (slot) {
                 slot.id = id; slot.type = type; slot.qty = (slot.qty || 0) + 1; slot.data = dataBlock;
             }
@@ -314,11 +340,15 @@
 
         function updateHotbarVisuals() {
             for (let i = 0; i < 8; i++) {
-                let slot = document.getElementById(`slot-${i}`); let item = hotbar[i];
+                let slot = document.getElementById(`slot-${i}`);
+                let item = hotbar[i];
                 if (item && item.id) {
                     slot.querySelector('.slot-icon').innerText = item.data?.icon || "🌱";
                     slot.querySelector('.slot-qty').innerText = "x" + item.qty;
-                } else { slot.querySelector('.slot-icon').innerText = ''; slot.querySelector('.slot-qty').innerText = ''; }
+                } else {
+                    slot.querySelector('.slot-icon').innerText = '';
+                    slot.querySelector('.slot-qty').innerText = '';
+                }
             }
         }
 
@@ -330,77 +360,73 @@
 
         function openNPCModal(npc) {
             currentOpenNPC = npc;
-            let modal = document.getElementById('game-modal'); modal.style.display = 'block';
-            let content = document.getElementById('modal-content'); content.innerHTML = '';
+            let modal = document.getElementById('game-modal');
+            modal.style.display = 'block';
+            let content = document.getElementById('modal-content');
+            content.innerHTML = '';
             
             if (npc === 'tiao') {
-                document.getElementById('modal-title').innerText = "Mercado Agrícola do Tião";
-                content.innerHTML += `<div style="color:#ffcc00; font-size:11px; margin-bottom:8px; text-align:center;">Próxima entrega de sementes em: <span id="restock-countdown">${formatTime(shopRestockTimer)}</span></div>`;
+                document.getElementById('modal-title').innerText = "Mercado do Seu Tião";
+                content.innerHTML += `<div style="color:#ffcc00; font-size:11px; margin-bottom:10px; text-align:center;">Próximo reabastecimento de caminhão em: ${Math.floor(shopTimer/60)}m ${shopTimer%60}s</div>`;
                 
                 Object.keys(fruitData).forEach(k => {
                     let stock = seedStock[k];
-                    let isOos = stock <= 0;
+                    let esgotado = stock <= 0;
                     content.innerHTML += `
                         <div class="shop-item">
-                            <div>🌱 Semente de ${fruitData[k].name} (Custo: 10 🪙) <br> <span style="color:${isOos ? '#ff3333':'#00ff00'}">Estoque: ${stock} un.</span></div>
-                            <button class="buy-btn" ${isOos ? 'disabled' : ''} onclick="buySeed('${k}')">${isOos ? 'Esgotado' : 'Adquirir'}</button>
+                            <div class="item-info">
+                                <span>🌱</span>
+                                <div><b>Semente de ${fruitData[k].name}</b><br>Preço: ${fruitData[k].seedPrice} moedas | <span style="color:${esgotado?'#ff3333':'#00ff00'}">Estoque: ${stock} un.</span></div>
+                            </div>
+                            <button class="buy-btn" ${esgotado ? 'disabled' : ''} onclick="buySeed('${k}')">${esgotado ? 'Esgotado' : 'Comprar'}</button>
                         </div>`;
                 });
             } 
             else if (npc === 'mago') {
-                document.getElementById('modal-title').innerText = "Altar Alquimista e Eventos Místicos";
+                document.getElementById('modal-title').innerText = "Altar de Eventos do Mago Alquimista";
                 content.innerHTML = `
-                <p style="font-size:11px;">O Mago manipula o DNA cósmico vegetal em seus altares sagrados.</p>
                 <div class="shop-item">
-                    <div>🧪 Soro do Hipercrescimento <br><span style="color:#aaa">Culturas crescem 2x mais rápido de forma global.</span></div>
-                    <button class="buy-btn" style="background:#50287a;" onclick="ativarSuperFertilizante()">Comprar (150 🪙)</button>
-                </div>
-                <div class="shop-item">
-                    <div>✨ Bênção do Altar de Radiação (+40% Chance Mutação) <br><span style="color:#aaa">Aumenta em 40% a chance do próximo plantio sofrer mutação extrema.</span></div>
-                    <button class="buy-btn" style="background:#bf8eff; color:#000;" ${gameState.mutationBless ? 'disabled' : ''} onclick="ativarAltarMutacao()">${gameState.mutationBless ? 'Já Ativo' : 'Encantar (100 🪙)'}</button>
+                    <div class="item-info">
+                        <span>🔮</span>
+                        <div><b>Bênção do Altar Radiante (+40% de Chance)</b><br>Faz as energias cósmicas irradiarem a terra. Próximo plantio tem +40% de chance de mutações insanas.</div>
+                    </div>
+                    <button class="buy-btn" style="background:#50287a;" ${gameState.mutationBless ? 'disabled':''} onclick="ativarAltar()">${gameState.mutationBless ? 'Já Ativo' : 'Encantar (100 🪙)'}</button>
                 </div>`;
             } 
             else if (npc === 'chico') {
-                document.getElementById('modal-title').innerText = "Chico - Exportação & Balança";
-                let totalValor = 0;
-                hotbar.forEach(i => { if (i && i.type === 'fruta') totalValor += i.data.price * i.qty; });
-                content.innerHTML = `<p>Análise da carga atual da sua Bolsa:</p>
-                <div style="background:#111; padding:8px; font-size:10px; margin-bottom:10px;">`;
+                document.getElementById('modal-title').innerText = "Balança de Exportação do Chico";
+                let total = 0;
+                hotbar.forEach(i => { if (i && i.type === 'fruta') total += i.data.price * i.qty; });
+                
+                content.innerHTML = `<p style="font-size:12px;">Frutas prontas para pesagem na mala:</p><div style="background:#111; padding:6px; font-size:10px; max-height:150px; overflow-y:auto;">`;
                 hotbar.forEach(i => { if(i && i.type === 'fruta') content.innerHTML += `▪️ ${i.data.fullName} x${i.qty} -> 🪙 ${Math.floor(i.data.price*i.qty)}<br>`; });
-                content.innerHTML += `</div><h4>Total a receber: 🪙 ${Math.floor(totalValor)}</h4>
-                <button class="buy-btn" style="width:100%;" onclick="venderTudoParaChico(${totalValor})">Descarregar e Vender Produtos</button>`;
+                content.innerHTML += `</div><h3 style="color:#ffcc00;">Valor da Carga: 🪙 ${Math.floor(total)}</h3>
+                <button class="buy-btn" style="width:100%; padding:8px;" onclick="venderTudo(${total})">Descarregar e Receber Dinheiro</button>`;
             }
         }
 
         function buySeed(k) {
             if (seedStock[k] <= 0) return;
-            if(gameState.coins >= 10) { 
-                gameState.coins -= 10; 
+            let preco = fruitData[k].seedPrice;
+            if(gameState.coins >= preco) { 
+                gameState.coins -= preco; 
                 seedStock[k]--;
                 addItemToHotbar(k, 'semente', { icon: "🌱" }); 
                 updateUI(); 
-                openNPCModal('tiao'); // Atualiza a tela imediatamente para abater o estoque visualmente
-            } else alert("Falta de fundos monetários!");
+                openNPCModal('tiao');
+            } else alert("Dinheiro insuficiente!");
         }
 
-        function ativarSuperFertilizante() {
-            if(gameState.coins >= 150) {
-                gameState.coins -= 150; gameState.fertilizanteAtivo = true;
-                alert("🔮 O Mago canalizou um feitiço! Culturas crescendo com o dobro de velocidade!");
-                closeModal(); updateUI();
-            } else alert("Falta de moedas para o feitiço!");
-        }
-
-        function ativarAltarMutacao() {
+        function activarAltar() {
             if(gameState.coins >= 100) {
                 gameState.coins -= 100;
                 gameState.mutationBless = true;
-                alert("⚛️ O Altar irradiou suas sementes! Próximo plantio terá +40% de chance de mutação genética rústica!");
+                alert("O altar brilhou! Seus próximos plantios estão sob efeito de mutação extrema (+40%).");
                 closeModal(); updateUI();
-            } else alert("Moedas insuficientes para o Altar!");
+            } else alert("Moedas insuficientes para o ritual do altar!");
         }
 
-        function venderTudoParaChico(valor) {
+        function venderTudo(valor) {
             gameState.coins += valor;
             hotbar = hotbar.map(i => i && i.type === 'fruta' ? { id: null, qty: 0, type: '', data: null } : i);
             updateHotbarVisuals(); closeModal(); updateUI();
@@ -409,13 +435,14 @@
         function openBackpackModal() {
             currentOpenNPC = null;
             let modal = document.getElementById('game-modal'); modal.style.display = 'block';
-            document.getElementById('modal-title').innerText = "Bolsa do Fazendeiro";
-            let content = document.getElementById('modal-content'); content.innerHTML = `<h3>Inventário de Mão</h3>`;
+            document.getElementById('modal-title').innerText = "Mochila do Trabalhador";
+            let content = document.getElementById('modal-content'); content.innerHTML = '';
             hotbar.forEach((i, index) => {
                 if (i && i.id) {
-                    content.innerHTML += `<div class="shop-item"><div>[Slot ${index+1}] ${i.type==='semente'?'Semente de ':''}<b>${i.data?.fullName || i.id}</b> (Qtd: ${i.qty})</div></div>`;
+                    content.innerHTML += `<div class="shop-item"><div>[Slot ${index+1}] ${i.type==='semente'?'Semente de ':''}<b>${i.data?.fullName || i.id}</b> (Quantidade: ${i.qty})</div></div>`;
                 }
             });
+            if(content.innerHTML === '') content.innerHTML = '<p style="text-align:center; color:#888;">Mochila vazia.</p>';
         }
 
         function closeModal() { document.getElementById('game-modal').style.display = 'none'; currentOpenNPC = null; }
@@ -442,9 +469,7 @@
 
         function updateUI() {
             document.getElementById('coin-count').innerText = Math.floor(gameState.coins);
-            document.getElementById('xp-bar').style.width = `${(player.xp / player.nextXp) * 100}%`;
-            document.getElementById('xp-text').innerText = `XP Agrícola: ${player.xp} / ${player.nextXp} (Nível ${player.lvl})`;
-            document.getElementById('bless-status').innerText = gameState.mutationBless ? "Altar de Radiação (+40%)" : "Nenhuma";
+            document.getElementById('bless-status').innerText = gameState.mutationBless ? "Altar Ativado (+40%)" : "Nenhuma";
             let item = hotbar[gameState.activeHotbarSlot];
             document.getElementById('selected-seed-text').innerText = item && item.id ? (item.type === 'semente' ? `Semente de ${fruitData[item.id].name}` : item.data.fullName) : 'Mão Vazia';
         }
