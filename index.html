@@ -8,21 +8,22 @@
         * { box-sizing: border-box; user-select: none; image-rendering: pixelated; }
         body { margin: 0; padding: 0; background-color: #1a2e10; font-family: 'Courier New', Courier, monospace; overflow: hidden; color: #fff; }
         
-        /* UI de Status - Compacta e Organizada */
+        /* PAINEL DE INFORMAÇÕES - Agora com suporte a Minimizar */
         #ui-top { position: absolute; top: 15px; left: 15px; background: #2c1e14; color: #f4ecd8; padding: 12px; border: 4px solid #6b4c35; z-index: 100; min-width: 320px; box-shadow: 0 6px 0px #140d08; }
         #ui-top h2 { margin: 0 0 6px 0; color: #ffcc00; font-size: 13px; text-align: center; border-bottom: 3px double #4e3522; padding-bottom: 4px; text-transform: uppercase; text-shadow: 2px 2px #000; }
         #ui-top p { margin: 4px 0; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; text-shadow: 1px 1px #000; }
+        #ui-top-content { display: block; }
         
         .btn-ui { background: #4a5da3; color: white; border: 2px solid #232e5c; border-bottom-width: 4px; padding: 4px; font-weight: bold; cursor: pointer; font-size: 10px; text-transform: uppercase; margin-top: 4px; width: 100%; text-shadow: 1px 1px #000; }
         .btn-ui:active { border-bottom-width: 2px; margin-top: 6px; }
+        .btn-minimize-ui { background: #555; color: #fff; border: 1px solid #777; font-size: 9px; cursor: pointer; padding: 2px 6px; text-transform: uppercase; float: right; margin-top: -2px; }
 
-        /* Painel Administrativo com Minimizador */
+        /* Painel Administrativo */
         #adm-wrapper { position: absolute; top: 15px; right: 15px; z-index: 200; display: flex; flex-direction: column; align-items: flex-end; }
         #adm-trigger { background: #990000; color: #fff; border: 3px solid #ff3333; padding: 6px 12px; font-weight: bold; font-size: 11px; cursor: pointer; box-shadow: 0 4px 0 #440000; }
         #adm-panel { display: none; background: #111116; border: 4px solid #ff3333; padding: 12px; width: 310px; color: #00ff00; max-height: 75vh; overflow-y: auto; margin-top: 5px; }
         .adm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-size: 11px; }
         .adm-input { width: 55%; background: #222; border: 1px solid #ff3333; color: #00ff00; padding: 2px; font-family: inherit; }
-        .btn-minimize { background: #555; color: #fff; border: 1px solid #777; font-size: 9px; cursor: pointer; padding: 2px 6px; margin-bottom: 5px; text-transform: uppercase; }
 
         /* Barra de Acesso Rápido */
         #hotbar-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; background: #18120c; padding: 6px; border: 4px solid #4a3319; z-index: 100; box-shadow: 0 6px 0 #000; }
@@ -40,7 +41,7 @@
 
         /* Componentes Móveis e NPCs */
         #player { position: absolute; width: 38px; height: 46px; background: #7fa4ff; border: 3px solid #111; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 50; }
-        .follower-pet { position: absolute; width: 24px; height: 24px; font-size: 18px; z-index: 49; display: none; }
+        .follower-pet { position: absolute; width: 24px; height: 24px; font-size: 18px; z-index: 49; display: none; pointer-events: none; }
         
         .character { position: absolute; width: 48px; height: 48px; font-size: 22px; z-index: 10; border: 3px solid #1a110b; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #000; }
         .npc-label { position: absolute; top: -22px; background: #1c120c; color: #f4ecd8; padding: 1px 4px; border: 2px solid #573b24; font-size: 8px; font-weight: bold; white-space: nowrap; }
@@ -65,7 +66,7 @@
         .timer-bar { position: absolute; bottom: 3px; left: 4px; width: calc(100% - 8px); height: 4px; background: #111; }
         .timer-fill { height: 100%; width: 0%; background: #2ecc71; }
 
-        /* Modais Independentes */
+        /* Modais */
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #291c12; border: 4px solid #543a24; padding: 16px; z-index: 300; width: 92%; max-width: 530px; box-shadow: 0 8px 0px #000; color: #f4ecd8; max-height: 80vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #402b1b; padding-bottom: 4px; margin-bottom: 10px; }
         .modal-header h3 { margin: 0; color: #ffcc00; font-size: 13px; text-transform: uppercase; }
@@ -80,17 +81,22 @@
 <body>
 
     <div id="ui-top">
+        <div style="width: 100%; display: inline-block;">
+            <button class="btn-minimize-ui" id="btn-toggle-ui" onclick="toggleUiPanel()">[ Minimizar ]</button>
+        </div>
         <h2>Fazenda RPG - Alquimia & Pets</h2>
-        <p><span>🪙 Moedas:</span> <span id="coin-count">200</span></p>
-        <p><span>🧪 Fertilizantes:</span> <span id="ui-fert-count">0</span></p>
-        <p><span>✋ Equipado:</span> <span id="selected-item-text">Regador 💧</span></p>
-        <p><span>🐾 Pets Ativos (Max 2):</span> <span id="ui-pet-active">Nenhum</span></p>
-        <p><span>🍀 Multiplicador Sorte:</span> <span id="ui-luck-multiplier">1.0x</span></p>
-        <p id="ui-timer-row" style="display:none; color:#ffcc00;"><span>⏳ Efeito Termina em:</span> <span id="ui-potion-timer">00:00</span></p>
-        <button class="btn-ui" onclick="openBackpackModal()">🎒 Ver Mochila [Espaço]</button>
-        <button class="btn-ui" onclick="openChestModal()">📦 Baú da Fazenda</button>
-        <button class="btn-ui" onclick="openPetMenuModal()">🦊 Gerenciar Pets Equipados</button>
-        <button class="btn-ui" onclick="openShopUpgrades()">🛒 Solo & Melhorias</button>
+        <div id="ui-top-content">
+            <p><span>🪙 Moedas:</span> <span id="coin-count">200</span></p>
+            <p><span>🧪 Fertilizantes:</span> <span id="ui-fert-count">3</span></p>
+            <p><span>✋ Equipado:</span> <span id="selected-item-text">Regador 💧</span></p>
+            <p><span>🐾 Pets Ativos (Max 2):</span> <span id="ui-pet-active">Nenhum</span></p>
+            <p><span>🍀 Multiplicador Sorte:</span> <span id="ui-luck-multiplier">1.0x</span></p>
+            <p id="ui-timer-row" style="display:none; color:#ffcc00;"><span>⏳ Efeito Termina em:</span> <span id="ui-potion-timer">03:00</span></p>
+            <button class="btn-ui" onclick="openBackpackModal()">🎒 Ver Mochila [Espaço]</button>
+            <button class="btn-ui" onclick="openChestModal()">📦 Baú da Fazenda</button>
+            <button class="btn-ui" onclick="openPetMenuModal()">🦊 Gerenciar Pets Equipados</button>
+            <button class="btn-ui" onclick="openShopUpgrades()">🛒 Solo & Melhorias</button>
+        </div>
     </div>
 
     <div id="adm-wrapper">
@@ -98,11 +104,11 @@
         <div id="adm-panel">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-weight:bold; color:#ff3333;">CONTROLES DIVINOS</span>
-                <button class="btn-minimize" onclick="minimizeAdm()">_ Minimizar</button>
+                <button class="btn-minimize" onclick="document.getElementById('adm-panel').style.display='none'">_ Fechar</button>
             </div>
             <button onclick="aplicarAlteracoesADM()" style="width:100%; color:black; background:#00ff00; font-weight:bold; margin: 8px 0; border:none; padding:5px; cursor:pointer;">APLICAR ALTERAÇÕES</button>
             <div class="adm-row"><label>🪙 Moedas:</label><input type="number" id="adm-coins" class="adm-input" value="200"></div>
-            <div class="adm-row"><label>🧪 Fertilizantes:</label><input type="number" id="adm-ferts" class="adm-input" value="0"></div>
+            <div class="adm-row"><label>🧪 Fertilizantes:</label><input type="number" id="adm-ferts" class="adm-input" value="3"></div>
             <div class="adm-row"><label>🟫 Max Lotes (24):</label><input type="number" id="adm-plots" class="adm-input" value="6"></div>
             <div class="adm-row"><label>⚡ Velocidade Jogo:</label><input type="number" id="adm-speed" class="adm-input" value="1" step="0.5"></div>
             
@@ -178,7 +184,8 @@
 
     <script>
         let player = { x: 200, y: 250, speed: 6, mapaAtual: 'fazenda', velMod: 1 };
-        let gameState = { coins: 200, maxPlots: 6, activeHotbarSlot: 0, fertilizantes: 0, sorteAtiva: 1.0, activePets: [], petsOwned: [], magicPoints: 0, admLogado: false, tempoPocaoRestante: 0 };
+        // Inicializado com 3 fertilizantes como pedido
+        let gameState = { coins: 200, maxPlots: 6, activeHotbarSlot: 0, fertilizantes: 3, sorteAtiva: 1.0, activePets: [], petsOwned: [], magicPoints: 0, admLogado: false, tempoPocaoRestante: 0 };
         let keysPressed = {};
         let plots = [];
         let bauGeral = [];
@@ -256,7 +263,7 @@
             prefeito:   { desc: "Auxílio para obras: Entregue 500 moedas.", tipo: "moedas", alvo: 500, feita: false, acao: () => { premiarSemente('suprema', 2); } },
             cozinheira: { desc: "Gosto exótico: Preciso de 1 Cenoura Radioativa.", tipo: "item_mutado", fruta: "cenoura", mut: "Radioativa", feita: false, acao: () => { gameState.coins += 900; } },
             alquimista: { desc: "Caldeirão fervendo: Preciso de 1 Cereja de Fogo Plasma.", tipo: "item_mutado", fruta: "cereja", mut: "Plasma", feita: false, acao: () => { gameState.coins += 2000; } },
-            lucas:      { desc: "Posto de guarda faminto: Entregue 1 Abacaxi Comum.", tipo: "item_comum", fruta: "abacaxi", feita: false, acao: () => { gameState.fertilizantes += 3; } },
+            lucas:      { desc: "Posto de guarda faminto: Entregue 1 Abacaxi Comum.", tipo: "item_comum", fruta: "abacaxi", feita: false, acao: () => { gameState.fertilizantes += 3; updateUI(); } },
             chico:      { desc: "História perdida: Entregue qualquer fruta Ancestral.", tipo: "qualquer_mut", mut: "Ancestral", feita: false, acao: () => { premiarSemente('estrela', 2); } },
             rui:        { desc: "Análise botânica: Entregue 1 Fruta Estrela Eclíptica.", tipo: "item_mutado", fruta: "estrela", mut: "Eclíptica", feita: false, acao: () => { gameState.coins += 5000; } }
         };
@@ -299,6 +306,19 @@
             window.addEventListener('keyup', e => keysPressed[e.key.toLowerCase()] = false);
 
             gameLoop();
+        }
+
+        // Função para minimizar/maximizar o painel de informações do topo
+        function toggleUiPanel() {
+            let content = document.getElementById('ui-top-content');
+            let btn = document.getElementById('btn-toggle-ui');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                btn.innerText = '[ Minimizar ]';
+            } else {
+                content.style.display = 'none';
+                btn.innerText = '[ Maximizar Painel ]';
+            }
         }
 
         function viajar(mapa) {
@@ -490,7 +510,7 @@
             } else alert("Pontos Mágicos insuficientes.");
         }
 
-        // Painel Isolado do Mestre dos Ovos (Conserta bugs de janelas unificadas)
+        // Painel Isolado do Mestre dos Ovos
         function abrirMenuOvos() {
             document.getElementById('egg-modal').style.display = 'block';
             let c = document.getElementById('egg-modal-content');
@@ -513,7 +533,7 @@
             } else alert("Moedas insuficientes.");
         }
 
-        // Menu para Equipar ATÉ 2 Pets ao Mesmo Tempo
+        // Gerenciamento Isolado de Equipar Pets (Sem duplicações)
         function openPetMenuModal() {
             document.getElementById('game-modal').style.display = 'block';
             document.getElementById('modal-title').innerText = "Canil de Companheiros (Max 2)";
@@ -545,13 +565,17 @@
                 }
                 gameState.activePets.push(petAlvo);
             }
+            // Só altera e limpa os slots nativos de forma limpa para evitar loops de multiplicação
             atualizarSeguidoresVisuais();
             updateUI(); openPetMenuModal();
         }
 
         function atualizarSeguidoresVisuais() {
+            // Garante que eles comecem limpos e ocultos a cada atualização de janelas
             document.getElementById('pet-follower-1').style.display = 'none';
             document.getElementById('pet-follower-2').style.display = 'none';
+            document.getElementById('pet-follower-1').innerText = '';
+            document.getElementById('pet-follower-2').innerText = '';
 
             if (gameState.activePets[0]) {
                 document.getElementById('pet-follower-1').innerText = gameState.activePets[0].icon;
@@ -661,9 +685,7 @@
             }
         }
 
-        // ==========================================
-        //  SISTEMA ADMINISTRATIVO REFORMULADO
-        // ==========================================
+        // Sistema Administrativo
         function toggleAdmPanel() {
             if (gameState.admLogado) {
                 let panel = document.getElementById('adm-panel');
@@ -676,10 +698,6 @@
                     alert("Acesso Administrativo Concedido com Sucesso!");
                 } else alert("Chave inválida.");
             }
-        }
-
-        function minimizeAdm() {
-            document.getElementById('adm-panel').style.display = 'none';
         }
 
         function buildAdmSelect() {
@@ -780,6 +798,7 @@
             document.getElementById('player').style.left = player.x + 'px';
             document.getElementById('player').style.top = player.y + 'px';
 
+            // Posiciona os seguidores baseado estritamente na array de ativos (Evita clones persistentes)
             if(gameState.activePets[0]) {
                 let pt1 = document.getElementById('pet-follower-1');
                 pt1.style.left = (player.x - 22) + 'px'; pt1.style.top = (player.y + 12) + 'px';
