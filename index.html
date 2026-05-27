@@ -8,7 +8,7 @@
         * { box-sizing: border-box; user-select: none; image-rendering: pixelated; }
         body { margin: 0; padding: 0; background-color: #1a2e10; font-family: 'Courier New', Courier, monospace; overflow: hidden; color: #fff; }
         
-        /* PAINEL DE INFORMAÇÕES - Agora com suporte a Minimizar */
+        /* PAINEL DE INFORMAÇÕES - Minimizável */
         #ui-top { position: absolute; top: 15px; left: 15px; background: #2c1e14; color: #f4ecd8; padding: 12px; border: 4px solid #6b4c35; z-index: 100; min-width: 320px; box-shadow: 0 6px 0px #140d08; }
         #ui-top h2 { margin: 0 0 6px 0; color: #ffcc00; font-size: 13px; text-align: center; border-bottom: 3px double #4e3522; padding-bottom: 4px; text-transform: uppercase; text-shadow: 2px 2px #000; }
         #ui-top p { margin: 4px 0; font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; text-shadow: 1px 1px #000; }
@@ -184,12 +184,13 @@
 
     <script>
         let player = { x: 200, y: 250, speed: 6, mapaAtual: 'fazenda', velMod: 1 };
-        // Inicializado com 3 fertilizantes como pedido
         let gameState = { coins: 200, maxPlots: 6, activeHotbarSlot: 0, fertilizantes: 3, sorteAtiva: 1.0, activePets: [], petsOwned: [], magicPoints: 0, admLogado: false, tempoPocaoRestante: 0 };
         let keysPressed = {};
         let plots = [];
         let bauGeral = [];
         let timerPocaoInterval = null;
+
+        let petUniqueIdCounter = 1; // Contador de ID único para evitar duplicações lógicas
 
         const fruitData = {
             maca:       { name: "Maçã", icon: "🍎", seedPrice: 15, basePrice: 17, time: 4 },
@@ -308,7 +309,6 @@
             gameLoop();
         }
 
-        // Função para minimizar/maximizar o painel de informações do topo
         function toggleUiPanel() {
             let content = document.getElementById('ui-top-content');
             let btn = document.getElementById('btn-toggle-ui');
@@ -526,35 +526,59 @@
             if(gameState.coins >= ovo.cost) {
                 gameState.coins -= ovo.cost;
                 let n = Math.random();
-                let obtido = n < 0.65 ? ovo.pool[0] : (n < 0.95 ? ovo.pool[1] : ovo.pool[2]);
-                gameState.petsOwned.push(JSON.parse(JSON.stringify(obtido)));
+                let obtidoBase = n < 0.65 ? ovo.pool[0] : (n < 0.95 ? ovo.pool[1] : ovo.pool[2]);
+                
+                // CRIA PET COM ID ÚNICO REAL
+                let novoPet = JSON.parse(JSON.stringify(obtidoBase));
+                novoPet.uid = petUniqueIdCounter++; 
+                
+                gameState.petsOwned.push(novoPet);
                 updateUI(); abrirMenuOvos();
-                alert(`✨ Ovo Aberto! Você obteve: ${obtido.icon} ${obtido.name} (${obtido.rar})!`);
+                alert(`✨ Ovo Aberto! Você obteve: ${novoPet.icon} ${novoPet.name} (${novoPet.rar})!`);
             } else alert("Moedas insuficientes.");
         }
 
-        // Gerenciamento Isolado de Equipar Pets (Sem duplicações)
+        // SISTEMA DE PETS REMODELADO - ZERO DUPLICAÇÕES NO INVENTÁRIO
         function openPetMenuModal() {
             document.getElementById('game-modal').style.display = 'block';
             document.getElementById('modal-title').innerText = "Canil de Companheiros (Max 2)";
-            let c = document.getElementById('modal-content');
-            if(gameState.petsOwned.length === 0) { c.innerHTML = `<p style="font-size:11px; text-align:center;">Seu canil está vazio.</p>`; return; }
             
-            gameState.petsOwned.forEach((pet, idx) => {
-                let jaEquipado = gameState.activePets.findIndex(p => p.name === pet.name);
-                c.innerHTML += `
-                    <div class="grid-item">
-                        <span>${pet.icon} <b>${pet.name}</b> (+${pet.mod}x chance de ${pet.target})</span>
-                        <button class="action-btn" style="background:${jaEquipado !== -1 ? '#c0392b':'#27ae60'};" onclick="gerenciarEquiparPet(${idx})">
-                            ${jaEquipado !== -1 ? 'Desequipar' : 'Equipar'}
-                        </button>
-                    </div>`;
+            let c = document.getElementById('modal-content');
+            c.innerHTML = ""; // FIX: LIMPA COMPLETAMENTE O CONTEÚDO ANTES DE DESENHAR OS BOTÕES
+
+            if(gameState.petsOwned.length === 0) { 
+                c.innerHTML = `<p style="font-size:11px; text-align:center;">Seu canil está vazio.</p>`; 
+                return; 
+            }
+            
+            gameState.petsOwned.forEach((pet) => {
+                // Checa se o pet está equipado comparando o UID único dele
+                let jaEquipado = gameState.activePets.findIndex(p => p.uid === pet.uid);
+                
+                let containerItem = document.createElement('div');
+                containerItem.className = 'grid-item';
+                containerItem.innerHTML = `<span>${pet.icon} <b>${pet.name}</b> (+${pet.mod}x chance de ${pet.target})</span>`;
+                
+                let btn = document.createElement('button');
+                btn.className = 'action-btn';
+                btn.style.background = jaEquipado !== -1 ? '#c0392b' : '#27ae60';
+                btn.innerText = jaEquipado !== -1 ? 'Desequipar' : 'Equipar';
+                
+                // Executa ação de forma limpa pelo UID único
+                btn.onclick = function() {
+                    gerenciarEquiparPetPorUID(pet.uid);
+                };
+                
+                containerItem.appendChild(btn);
+                c.appendChild(containerItem);
             });
         }
 
-        function gerenciarEquiparPet(idx) {
-            let petAlvo = gameState.petsOwned[idx];
-            let indexJaEquipado = gameState.activePets.findIndex(p => p.name === petAlvo.name);
+        function gerenciarEquiparPetPorUID(uid) {
+            let petAlvo = gameState.petsOwned.find(p => p.uid === uid);
+            if(!petAlvo) return;
+
+            let indexJaEquipado = gameState.activePets.findIndex(p => p.uid === uid);
 
             if (indexJaEquipado !== -1) {
                 gameState.activePets.splice(indexJaEquipado, 1);
@@ -565,17 +589,15 @@
                 }
                 gameState.activePets.push(petAlvo);
             }
-            // Só altera e limpa os slots nativos de forma limpa para evitar loops de multiplicação
+            
             atualizarSeguidoresVisuais();
-            updateUI(); openPetMenuModal();
+            updateUI(); 
+            openPetMenuModal(); // Redesenha a lista limpa e atualizada sem clonagem
         }
 
         function atualizarSeguidoresVisuais() {
-            // Garante que eles comecem limpos e ocultos a cada atualização de janelas
             document.getElementById('pet-follower-1').style.display = 'none';
             document.getElementById('pet-follower-2').style.display = 'none';
-            document.getElementById('pet-follower-1').innerText = '';
-            document.getElementById('pet-follower-2').innerText = '';
 
             if (gameState.activePets[0]) {
                 document.getElementById('pet-follower-1').innerText = gameState.activePets[0].icon;
@@ -587,11 +609,12 @@
             }
         }
 
-        // Mochila, Baú e Insumos / Fertilizantes
+        // Mochila, Baú e Insumos
         function openBackpackModal() {
             document.getElementById('game-modal').style.display = 'block';
             document.getElementById('modal-title').innerText = "Inventário Completo";
             let c = document.getElementById('modal-content');
+            c.innerHTML = "";
             hotbar.forEach((s, idx) => {
                 if(s && s.id && s.id !== 'regador') {
                     c.innerHTML += `<div class="grid-item"><span>[Slot ${idx+1}] ${s.data.fullName || s.id} (x${s.qty})</span><button class="action-btn" style="background:#95a5a6;" onclick="removerItemMochila(${idx})">Descarregar</button></div>`;
@@ -631,6 +654,7 @@
         function abrirMenuNPC(key) {
             document.getElementById('game-modal').style.display = 'block';
             let c = document.getElementById('modal-content');
+            c.innerHTML = "";
             if(key === 'tiao') {
                 document.getElementById('modal-title').innerText = "Mercado do Seu Tião";
                 c.innerHTML = '<p><b>Comprar Sementes (Pacote com 5):</b></p>';
@@ -728,8 +752,10 @@
         function admInjetarPet() {
             let petIdx = document.getElementById('adm-pet-select').value;
             let petObtido = todosOsPetsExistentes[petIdx];
-            gameState.petsOwned.push(JSON.parse(JSON.stringify(petObtido)));
-            alert(`Injetado: ${petObtido.icon} ${petObtido.name} adicionado ao seu canil!`);
+            let novoPet = JSON.parse(JSON.stringify(petObtido));
+            novoPet.uid = petUniqueIdCounter++; // Atribui UID único no spawn ADM
+            gameState.petsOwned.push(novoPet);
+            alert(`Injetado: ${novoPet.icon} ${novoPet.name} adicionado ao seu canil!`);
         }
 
         function admInjetarMutacao() {
@@ -798,7 +824,6 @@
             document.getElementById('player').style.left = player.x + 'px';
             document.getElementById('player').style.top = player.y + 'px';
 
-            // Posiciona os seguidores baseado estritamente na array de ativos (Evita clones persistentes)
             if(gameState.activePets[0]) {
                 let pt1 = document.getElementById('pet-follower-1');
                 pt1.style.left = (player.x - 22) + 'px'; pt1.style.top = (player.y + 12) + 'px';
